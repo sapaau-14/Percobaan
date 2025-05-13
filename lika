@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no" />
+<title>Will You Be My Girlfriend?</title>
+<style>
+  /* Reset and base */
+  * {
+    box-sizing: border-box;
+  }
+  body, html {
+    margin: 0; padding: 0; height: 100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #ffe1ec; /* soft pink */
+    overflow: hidden;
+    user-select: none;
+  }
+  /* Container to center and keep within max width/height */
+  #app {
+    width: 100%; max-width: 350px;
+    height: 600px;
+    margin: auto;
+    position: relative;
+    background: #fff0f6;
+    box-shadow: 0 4px 15px rgba(255,105,180,0.4);
+    border-radius: 15px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+  }
+
+  /* Page styles */
+  .page {
+    flex: 1;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 10px 15px;
+  }
+  .page.active {
+    display: flex;
+  }
+
+  /* General text styling */
+  h1 {
+    font-weight: 800;
+    font-size: 1.6rem;
+    color: #e91e63;
+    margin-bottom: 15px;
+    text-shadow: 1px 1px 2px #ffbad2;
+  }
+  p {
+    font-size: 1.1rem;
+    color: #b31b67;
+    margin-bottom: 30px;
+    text-shadow: 0 1px 2px #ffd6e6;
+  }
+
+  /* Buttons general style */
+  .btn {
+    font-weight: bold;
+    font-size: 1.1rem;
+    padding: 10px 25px;
+    margin: 10px;
+    border: none;
+    border-radius: 35px;
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.3s ease;
+    box-shadow: 0 4px 10px rgba(233,30,99,0.5);
+    color: #fff;
+    user-select: none;
+  }
+  .btn:focus {
+    outline: 2px solid #ff4a91;
+    outline-offset: 3px;
+  }
+  .btn-yes {
+    background: linear-gradient(45deg, #ec407a, #d81b60);
+    box-shadow: 0 6px 12px #d81b60cc;
+  }
+  .btn-yes:hover {
+    background: linear-gradient(45deg, #d81b60, #ec407a);
+    transform: scale(1.1);
+  }
+  .btn-no {
+    background: linear-gradient(45deg, #f48fb1, #f06292);
+    box-shadow: 0 6px 12px #f06292cc;
+    position: absolute;
+    user-select: none;
+  }
+  /* Disabled text input to avoid user input label for image selection */
+  label {
+    cursor: pointer;
+  }
+
+  /* Form */
+  form {
+    width: 100%;
+    max-width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  label > span {
+    display: block;
+    color: #d81b60;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  input[type="date"], input[type="time"] {
+    padding: 10px;
+    border-radius: 12px;
+    border: 2px solid #f48fb1;
+    font-size: 1rem;
+    color: #4a0033;
+    background: #ffe6f0;
+    transition: border-color 0.3s ease;
+    width: 100%;
+  }
+  input[type="date"]:focus, input[type="time"]:focus {
+    border-color: #d81b60;
+    outline: none;
+  }
+  /* Image selection styles */
+  .image-options {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+  }
+  .image-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    border-radius: 15px;
+    border: 3px solid transparent;
+    padding: 5px;
+    transition: border-color 0.3s ease;
+  }
+  .image-option img {
+    width: 70px;
+    height: 70px;
+    border-radius: 15px;
+    user-select: none;
+    pointer-events: none;
+    box-shadow: 0 4px 8px rgba(216,27,96,0.3);
+    object-fit: cover;
+  }
+  .image-option input[type="radio"] {
+    display: none;
+  }
+  .image-option input[type="radio"]:checked + img {
+    border: 3px solid #d81b60;
+    box-shadow: 0 0 12px 4px #d81b60cc;
+  }
+
+  /* Continue button */
+  #continue-btn {
+    align-self: center;
+    background: linear-gradient(135deg, #d81b60, #ec407a);
+    color: white;
+    padding: 12px 28px;
+    font-size: 1.2rem;
+    border-radius: 35px;
+    border: none;
+    cursor: pointer;
+    margin-top: 10px;
+    box-shadow: 0 6px 15px #d81b60cc;
+    user-select: none;
+    transition: transform 0.2s ease, background-color 0.3s ease;
+  }
+  #continue-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #ec407a, #d81b60);
+    transform: scale(1.1);
+  }
+  #continue-btn:disabled {
+    background: #f8bbd0;
+    cursor: not-allowed;
+    box-shadow: none;
+    color: #7f3a53;
+  }
+
+  /* Third page card */
+  .date-card {
+    background: #ffdce6;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 8px 18px #d81b6077;
+    width: 90%;
+    max-width: 320px;
+    text-align: center;
+  }
+  .date-card h2 {
+    color: #880e4f;
+    margin-bottom: 15px;
+  }
+  .date-card .info {
+    font-size: 1.15rem;
+    color: #a3154c;
+    margin-bottom: 15px;
+  }
+  .date-card img {
+    width: 200px;
+    max-width: 100%;
+    border-radius: 20px;
+    box-shadow: 0 6px 12px #b0255f99;
+    user-select: none;
+  }
+
+  /* Hearts trail style */
+  .heart {
+    position: fixed;
+    pointer-events: none;
+    font-size: 16px;
+    color: #d81b60;
+    animation: floatUp 1.5s ease forwards;
+    user-select: none;
+    z-index: 9999;
+  }
+  @keyframes floatUp {
+    0% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-40px) scale(1.5);
+    }
+  }
+  /* Responsive text shrink for smaller screens */
+  @media (max-width: 340px) {
+    h1 {
+      font-size: 1.3rem;
+    }
+    .btn {
+      font-size: 1rem;
+      padding: 8px 22px;
+    }
+    #continue-btn {
+      font-size: 1.1rem;
+      padding: 10px 22px;
+    }
+  }
+</style>
+</head>
+<body>
+<div id="app" role="main" aria-label="Girlfriend proposal application">
+  <!-- Page 1 - Ask to be girlfriend -->
+  <section id="page1" class="page active" aria-labelledby="page1-title" role="region">
+    <h1 id="page1-title">Will you be my girlfriend?</h1>
+    <p>Choose wisely ❤️</p>
+    <button class="btn btn-yes" id="yes-btn" aria-label="Yes, I do">Yes I do</button>
+    <button class="btn btn-no" id="no-btn" aria-label="No, leave me alone">No, leave me alone</button>
+  </section>
+
+  <!-- Page 2 - Date scheduling -->
+  <section id="page2" class="page" aria-labelledby="page2-title" role="region">
+    <h1 id="page2-title">Schedule our date</h1>
+    <form id="date-form" novalidate>
+      <label for="date">
+        <span>Select date</span>
+        <input type="date" id="date" name="date" required aria-required="true" />
+      </label>
+      <label for="time">
+        <span>Select time</span>
+        <input type="time" id="time" name="time" required aria-required="true" />
+      </label>
+      <fieldset aria-labelledby="activity-label" style="border:none; padding:0;">
+        <legend id="activity-label" style="color:#d81b60; font-weight:700; margin-bottom:8px;">Choose an activity</legend>
+        <div class="image-options">
+          <label class="image-option" title="Pizza" aria-label="Pizza option">
+            <input type="radio" name="activity" value="pizza" required aria-required="true" />
+            <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=70&h=70&q=80" alt="Pizza slice" />
+          </label>
+          <label class="image-option" title="London" aria-label="London option">
+            <input type="radio" name="activity" value="london" />
+            <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=70&h=70&q=80" alt="London city" />
+          </label>
+          <label class="image-option" title="Movie" aria-label="Movie option">
+            <input type="radio" name="activity" value="movie" />
+            <img src="https://images.unsplash.com/photo-1511919884226-cf1d6f7854c6?auto=format&fit=crop&w=70&h=70&q=80" alt="Movie clapperboard" />
+          </label>
+        </div>
+      </fieldset>
+      <button type="submit" id="continue-btn" disabled aria-disabled="true">Continue</button>
+    </form>
+  </section>
+
+  <!-- Page 3 - Date summary -->
+  <section id="page3" class="page" aria-labelledby="page3-title" role="region">
+    <h1 id="page3-title">Our Date is Set! 💖</h1>
+    <div class="date-card" aria-live="polite" aria-atomic="true">
+      <h2 id="summary-activity">Activity</h2>
+      <p class="info" id="summary-datetime">Date & Time</p>
+      <img src="" alt="" id="summary-image" />
+    </div>
+  </section>
+</div>
+
+<script>
+  // DOM references
+  const page1 = document.getElementById('page1');
+  const page2 = document.getElementById('page2');
+  const page3 = document.getElementById('page3');
+  const noBtn = document.getElementById('no-btn');
+  const yesBtn = document.getElementById('yes-btn');
+  const form = document.getElementById('date-form');
+  const continueBtn = document.getElementById('continue-btn');
+  const summaryActivity = document.getElementById('summary-activity');
+  const summaryDatetime = document.getElementById('summary-datetime');
+  const summaryImage = document.getElementById('summary-image');
+
+  // Page switch helper
+  function showPage(page) {
+    page1.classList.remove('active');
+    page2.classList.remove('active');
+    page3.classList.remove('active');
+    page.classList.add('active');
+  }
+
+  // "No" button evasive behavior on hover
+  noBtn.addEventListener('mouseenter', () => {
+    // Move the button to a random position inside #app container except where "Yes" button is
+    const container = document.getElementById('app');
+    const containerRect = container.getBoundingClientRect();
+    const btnRect = noBtn.getBoundingClientRect();
+    const yesRect = yesBtn.getBoundingClientRect();
+
+    // Compute available max left/top so that button stays fully inside container
+    const maxLeft = container.clientWidth - noBtn.offsetWidth - 10;
+    const maxTop = container.clientHeight - noBtn.offsetHeight - 10;
+
+    let newLeft, newTop;
+    let attempts = 0;
+    do {
+      newLeft = Math.random() * maxLeft;
+      newTop = Math.random() * maxTop;
+      attempts++;
+      // Check if new position overlaps too much with "Yes" button (20px padding)
+    } while (overlaps(newLeft, newTop, noBtn.offsetWidth, noBtn.offsetHeight,
+                     yesBtn.offsetLeft, yesBtn.offsetTop, yesBtn.offsetWidth + 20, yesBtn.offsetHeight + 20)
+              && attempts < 100);
+
+    noBtn.style.left = newLeft + 'px';
+    noBtn.style.top = newTop + 'px';
+  });
+
+  // Helper function to check for overlapping rectangles
+  function overlaps(x1, y1, w1, h1, x2, y2, w2, h2) {
+    return !(x1 + w1 < x2 || x1 > x2 + w2 || y1 + h1 < y2 || y1 > y2 + h2);
+  }
+
+  // Reset noBtn position to default initially
+  function resetNoBtnPosition() {
+    noBtn.style.position = 'absolute';
+    noBtn.style.left = '';
+    noBtn.style.top = '';
+  }
+  resetNoBtnPosition();
+
+  // Yes button click goes to page 2
+  yesBtn.addEventListener('click', () => {
+    showPage(page2);
+    resetNoBtnPosition();
+  });
+
+  // Enable continue button only when form valid and an activity is selected
+  function updateContinueState() {
+    const dateVal = form.date.value;
+    const timeVal = form.time.value;
+    const activityVal = form.activity.value || null;
+    const valid = dateVal && timeVal && activityVal;
+    continueBtn.disabled = !valid;
+    continueBtn.setAttribute('aria-disabled', !valid);
+  }
+
+  form.addEventListener('change', updateContinueState);
+  form.addEventListener('input', updateContinueState);
+
+  // Continue button submit handler
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    // Read form data
+    const dateVal = form.date.value;
+    const timeVal = form.time.value;
+    const activityVal = form.activity.value;
+
+    if (!dateVal || !timeVal || !activityVal) return;
+
+    // Format date and time nicely
+    const dateObj = new Date(dateVal + 'T' + timeVal);
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const formattedDate = dateObj.toLocaleDateString(undefined, options);
+    const formattedTime = dateObj.toLocaleTimeString(undefined, {hour: '2-digit', minute:'2-digit'});
+
+    // Set summary text and image
+    summaryActivity.textContent = activityLabel(activityVal);
+    summaryDatetime.textContent = formattedDate + ' at ' + formattedTime;
+    summaryImage.src = activityImage(activityVal);
+    summaryImage.alt = activityLabel(activityVal);
+
+    showPage(page3);
+  });
+
+  // Activity label helper
+  function activityLabel(value) {
+    switch(value) {
+      case 'pizza': return 'Pizza Date';
+      case 'london': return 'London Adventure';
+      case 'movie': return 'Movie Night';
+      default: return '';
+    }
+  }
+  // Activity image helper
+  function activityImage(value) {
+    switch(value) {
+      case 'pizza': return 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=600&h=400&q=80';
+      case 'london': return 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&h=400&q=80';
+      case 'movie': return 'https://images.unsplash.com/photo-1511919884226-cf1d6f7854c6?auto=format&fit=crop&w=600&h=400&q=80';
+      default: return '';
+    }
+  }
+
+  // Hearts trail animation following cursor
+  document.addEventListener('mousemove', e => {
+    createHeart(e.pageX, e.pageY);
+  });
+  document.addEventListener('touchmove', e => {
+    if (e.touches.length > 0) {
+      createHeart(e.touches[0].pageX, e.touches[0].pageY);
+    }
+  }, {passive:true});
+
+  function createHeart(x, y) {
+    const heart = document.createElement('div');
+    heart.textContent = '❤️';
+    heart.className = 'heart';
+    heart.style.left = (x - 8) + 'px';
+    heart.style.top = (y - 8) + 'px';
+    document.body.appendChild(heart);
+    setTimeout(() => {
+      heart.remove();
+    }, 1500);
+  }
+</script>
+</body>
+</html>
+
